@@ -103,7 +103,7 @@
             border-radius: 5px;
             padding: 15px;
             flex: 1 1 calc(45% - 10px);
-            max-width: 300px; /* Limit width for better layout */
+            max-width: 300px;
             transition: background-color 0.3s ease;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
         }
@@ -124,7 +124,7 @@
         }
 
         .assignments {
-            display: none; /* Initially hide assignments */
+            display: none;
             margin-top: 10px;
             padding: 10px;
             border-top: 1px solid #D1D5DB;
@@ -165,7 +165,7 @@
         }
 
         /* Popup Styles */
-        #message-popup {
+        #assignment-popup {
             display: none;  /* Initially hidden */
             position: fixed; /* Fixed position for centering */
             top: 50%;
@@ -176,8 +176,9 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
             z-index: 1000; /* Ensure it's above other content */
-            width: 300px; /* Fixed width */
-            text-align: center;
+            width: 80%; /* Change width for larger popup */
+            height: 80%; /* Change height for larger popup */
+            overflow: hidden; /* Hide overflowing content */
         }
 
         /* Overlay Styles */
@@ -188,8 +189,16 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 999; /* Just below the popup */
+        }
+
+        /* Iframe Styles for Assignment URL */
+        #assignment-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px; /* Match border radius */
         }
     </style>
 </head>
@@ -204,7 +213,7 @@
 
         <div id="sidebar">
             <h3>Navigation</h3>
-            <div class="tab active" onclick="showMessages()">Home</div>
+            <div class="tab active" onclick="populateCourses()">Home</div>
             <div class="tab" onclick="showMessages()">Messages</div>
         </div>
 
@@ -238,11 +247,9 @@
     <!-- Popup Overlay -->
     <div id="popup-overlay" onclick="closePopup()"></div>
 
-    <!-- Popup Message Box -->
-    <div id="message-popup">
-        <h3>Message from Teacher</h3>
-        <p>Welcome to LEARNOR, From: Noah Erspamer</p>
-        <p>Welcome To LEARNOR, a free learning program for students, quick access and get around! Learn fast, learn smart!</p>
+    <!-- Popup Assignment Box -->
+    <div id="assignment-popup">
+        <iframe id="assignment-frame" src=""></iframe>
         <button onclick="closePopup()">Close</button>
     </div>
 
@@ -255,9 +262,9 @@
                 organization: 'Mathematics Department',
                 image: 'https://img.jagranjosh.com/imported/images/E/Articles/maths2.jpg',
                 assignments: [
-                    { name: 'Homework 1', link: '#homework1' },
-                    { name: 'Assignment 2', link: '#assignment2' },
-                    { name: 'Quiz 1', link: '#quiz1' }
+                    { name: 'Edia Lesson 1 - Go to Study', link: 'https://edia.app/assignments/056d4c3b-4d74-446d-a8ce-219bed1af3a7' },
+                    { name: 'Assignment 2', link: 'https://www.example.com/assignment2' },
+                    { name: 'Quiz 1', link: 'https://www.example.com/quiz1' }
                 ]
             },
             {
@@ -266,9 +273,9 @@
                 organization: 'Social Studies Department',
                 image: 'https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-History-56161577.jpg',
                 assignments: [
-                    { name: 'Read Chapter 1', link: '#readchapter1' },
-                    { name: 'Essay Due', link: '#essay' },
-                    { name: 'Project Presentation', link: '#presentation' }
+                    { name: 'Read Chapter 1', link: 'https://www.example.com/readchapter1' },
+                    { name: 'Essay Due', link: 'https://www.example.com/essay' },
+                    { name: 'Project Presentation', link: 'https://www.example.com/presentation' }
                 ]
             },
             {
@@ -277,8 +284,8 @@
                 organization: 'Science Department',
                 image: 'https://static.vecteezy.com/system/resources/previews/027/013/992/non_2x/biology-doodle-set-collection-of-hand-drawn-elements-science-biology-circle-shape-illustration-isolated-on-a-white-background-vector.jpg',
                 assignments: [
-                    { name: 'Lab Report 1', link: '#labreport1' },
-                    { name: 'Midterm Study Guide', link: '#midterm' }
+                    { name: 'Lab Report 1', link: 'https://www.example.com/labreport1' },
+                    { name: 'Midterm Study Guide', link: 'https://www.example.com/midterm' }
                 ]
             },
             {
@@ -287,8 +294,8 @@
                 organization: 'English Department',
                 image: 'https://th.bing.com/th/id/OIP.sTZwaNFf44S9TSDCzTZ6RwHaEK?rs=1&pid=ImgDetMain',
                 assignments: [
-                    { name: 'Short Story', link: '#shortstory' },
-                    { name: 'Poetry Assignment', link: '#poetry' }
+                    { name: 'Short Story', link: 'https://www.example.com/shortstory' },
+                    { name: 'Poetry Assignment', link: 'https://www.example.com/poetry' }
                 ]
             },
             // Add more courses and assignments as needed
@@ -303,7 +310,11 @@
                 courseElement.classList.add('course-item');
 
                 // Create assignment list HTML
-                const assignmentList = course.assignments.map(assignment => `<li><a href="${assignment.link}">${assignment.name}</a></li>`).join("");
+                const assignmentList = course.assignments.map(assignment => `
+                    <li>
+                        <a href="#" onclick="openAssignment('${assignment.link}')">${assignment.name}</a>
+                    </li>
+                `).join("");
                 const assignmentsHtml = `
                     <div class="assignments">
                         <strong>Assignments:</strong>
@@ -333,14 +344,28 @@
             }
         }
 
+        // Function to open assignment URL in iframe
+        function openAssignment(url) {
+            document.getElementById('assignment-frame').src = url;
+            document.getElementById('popup-overlay').style.display = 'block';
+            document.getElementById('assignment-popup').style.display = 'block';
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+            document.getElementById('assignment-popup').style.display = 'none';
+            document.getElementById('assignment-frame').src = ''; // Clear out the URL when closing
+        }
+
         // Function to show the message popup
         function showMessages() {
             document.getElementById('popup-overlay').style.display = 'block';
             document.getElementById('message-popup').style.display = 'block';
         }
 
-        // Function to close the popup
-        function closePopup() {
+        // Function to close the message popup
+        function closeMessagePopup() {
             document.getElementById('popup-overlay').style.display = 'none';
             document.getElementById('message-popup').style.display = 'none';
         }
