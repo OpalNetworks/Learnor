@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEARNOR - Learning Program</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #F8F9FA;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        #header {
+            background-color: #3C93E1;
+            color: white;
+            text-align: center;
+            padding: 1.5em 0;
+            position: relative;
+            box-shadow: 0 4px 2px -2px gray;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        /* Main Container */
+        #main {
+            display: flex;
+            padding: 1em;
+            height: calc(100vh - 112px);
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 20%;
+            background-color: #FFF;
+            border-right: 1px solid #DDD;
+            padding: 1em;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        #sidebar h3 {
+            color: #3C93E1;
+            font-size: 1.5em;
+            margin-bottom: 1em;
+            border-bottom: 2px solid #3C93E1;
+        }
+
+        .tab {
+            margin: 1em 0;
+            padding: 1em;
+            background-color: #F0F4F8;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: background-color 0.3s ease, border 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background-color: #3C93E1;
+            color: white;
+            border: 1px solid #3C93E1;
+        }
+
+        .tab:hover {
+            background-color: #E7F2FC;
+        }
+
+        /* Center Content */
+        #center {
+            width: 60%;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #course-dashboard {
+            background-color: #FFF;
+            border-radius: 8px;
+            padding: 1em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            flex: 1;
+            margin-bottom: 1em;
+        }
+
+        #course-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .course-item {
+            background-color: #F6F9FC;
+            border: 1px solid #D1D5DB;
+            border-radius: 5px;
+            padding: 15px;
+            flex: 1 1 calc(45% - 10px);
+            max-width: 300px; /* Limit width for better layout */
+            transition: background-color 0.3s ease;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-item:hover {
+            background-color: #E9F1FB;
+        }
+
+        .course-image {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .course-details {
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .assignments {
+            display: none; /* Initially hide assignments */
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #D1D5DB;
+        }
+
+        h3 {
+            color: #333;
+            border-bottom: 1px solid #D1D5DB;
+            padding-bottom: 0.4em;
+            margin: 0 0 1em 0;
+        }
+
+        /* Right Column */
+        #right-column {
+            width: 20%;
+            padding: 1em;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #upcoming-events,
+        #recently-completed,
+        #reminders {
+            background-color: #FFF;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1em;
+        }
+
+        /* Footer */
+        #footer {
+            background-color: #3C93E1;
+            color: white;
+            text-align: center;
+            padding: 0.5em;
+            margin-top: auto;
+        }
+
+        /* Popup Styles */
+        #message-popup {
+            display: none;  /* Initially hidden */
+            position: fixed; /* Fixed position for centering */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the popup */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            z-index: 1000; /* Ensure it's above other content */
+            width: 300px; /* Fixed width */
+            text-align: center;
+        }
+
+        /* Overlay Styles */
+        #popup-overlay {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+            z-index: 999; /* Just below the popup */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="header">
+        <h1>LEARNOR - Learn fast, learn smart - Dashboard</h1>
+    </div>
+
+    <div id="main">
+
+        <div id="sidebar">
+            <h3>Navigation</h3>
+            <div class="tab active" onclick="showMessages()">Home</div>
+            <div class="tab" onclick="showMessages()">Messages</div>
+        </div>
+
+        <div id="center">
+            <div id="course-dashboard">
+                <h2>Course Dashboard</h2>
+                <div id="course-list"></div>
+            </div>
+        </div>
+
+        <div id="right-column">
+            <div id="upcoming-events">
+                <h3>Upcoming Events</h3>
+                <div class="upcoming-list">
+                    <p>No upcoming events.</p>
+                </div>
+            </div>
+            <div id="reminders">
+                <h3>Reminders</h3>
+                <div class="reminders-content">
+                    <p>Always Study for tests! :)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <p>'</p>
+    </div>
+
+    <!-- Popup Overlay -->
+    <div id="popup-overlay" onclick="closePopup()"></div>
+
+    <!-- Popup Message Box -->
+    <div id="message-popup">
+        <h3>Message from Teacher</h3>
+        <p>Welcome to LEARNOR, From: Noah Erspamer</p>
+        <p>Welcome To LEARNOR, a free learning program for students, quick access and get around! Learn fast, learn smart!</p>
+        <button onclick="closePopup()">Close</button>
+    </div>
+
+    <script>
+        // Sample Course Data with Links to Assignments
+        const courseList = [
+            {
+                title: 'Math 101',
+                instructor: 'Jane Doe',
+                organization: 'Mathematics Department',
+                image: 'https://img.jagranjosh.com/imported/images/E/Articles/maths2.jpg',
+                assignments: [
+                    { name: 'Homework 1', link: '#homework1' },
+                    { name: 'Assignment 2', link: '#assignment2' },
+                    { name: 'Quiz 1', link: '#quiz1' }
+                ]
+            },
+            {
+                title: 'History 202',
+                instructor: 'John Smith',
+                organization: 'Social Studies Department',
+                image: 'https://blog.udemy.com/wp-content/uploads/2014/05/bigstock-History-56161577.jpg',
+                assignments: [
+                    { name: 'Read Chapter 1', link: '#readchapter1' },
+                    { name: 'Essay Due', link: '#essay' },
+                    { name: 'Project Presentation', link: '#presentation' }
+                ]
+            },
+            {
+                title: 'Biology 303',
+                instructor: 'Linda White',
+                organization: 'Science Department',
+                image: 'https://static.vecteezy.com/system/resources/previews/027/013/992/non_2x/biology-doodle-set-collection-of-hand-drawn-elements-science-biology-circle-shape-illustration-isolated-on-a-white-background-vector.jpg',
+                assignments: [
+                    { name: 'Lab Report 1', link: '#labreport1' },
+                    { name: 'Midterm Study Guide', link: '#midterm' }
+                ]
+            },
+            {
+                title: 'English',
+                instructor: 'Carl Johnson',
+                organization: 'English Department',
+                image: 'https://th.bing.com/th/id/OIP.sTZwaNFf44S9TSDCzTZ6RwHaEK?rs=1&pid=ImgDetMain',
+                assignments: [
+                    { name: 'Short Story', link: '#shortstory' },
+                    { name: 'Poetry Assignment', link: '#poetry' }
+                ]
+            },
+            // Add more courses and assignments as needed
+        ];
+
+        // Function to Populate Course List
+        function populateCourses() {
+            const courseContainer = document.getElementById('course-list');
+            courseContainer.innerHTML = ''; // Clear existing courses
+            courseList.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.classList.add('course-item');
+
+                // Create assignment list HTML
+                const assignmentList = course.assignments.map(assignment => `<li><a href="${assignment.link}">${assignment.name}</a></li>`).join("");
+                const assignmentsHtml = `
+                    <div class="assignments">
+                        <strong>Assignments:</strong>
+                        <ul>${assignmentList}</ul>
+                    </div>
+                `;
+
+                courseElement.innerHTML = `
+                    <img class="course-image" src="${course.image}" alt="${course.title}">
+                    <div class="course-details" onclick="toggleAssignments(event)">
+                        <strong>${course.title}</strong><br>
+                        Instructor: ${course.instructor}<br>
+                        Organization: ${course.organization}
+                    </div>
+                    ${assignmentsHtml}
+                `;
+                courseContainer.appendChild(courseElement);
+            });
+        }
+
+        // Function to toggle assignments visibility
+        function toggleAssignments(event) {
+            const detailElement = event.currentTarget.nextElementSibling;
+            if (detailElement) {
+                const displayStyle = detailElement.style.display === 'block' ? 'none' : 'block';
+                detailElement.style.display = displayStyle;
+            }
+        }
+
+        // Function to show the message popup
+        function showMessages() {
+            document.getElementById('popup-overlay').style.display = 'block';
+            document.getElementById('message-popup').style.display = 'block';
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            document.getElementById('popup-overlay').style.display = 'none';
+            document.getElementById('message-popup').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateCourses();
+        });
+    </script>
+
+</body>
+
+</html>
